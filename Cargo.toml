@@ -1,0 +1,11 @@
+#Cargo.toml is the manifest file for Rust. It’s where you keep metadata for your project, as well as dependencies.
+
+[package]
+name = "tor"
+version = "0.1.0"
+authors = ["wzx-ipads <593074943@qq.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
