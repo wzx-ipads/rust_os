@@ -1,0 +1,2 @@
+[build]
+target = "x64-build-config.json"
