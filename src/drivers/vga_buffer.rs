@@ -125,25 +125,13 @@ impl fmt::Write for Writer {
     }
 }
 
-// we add the #[macro_export] attribute to both macros to make them available everywhere in our crate
-#[macro_export]
-macro_rules! print {
-    ($($arg:tt)*) => ($crate::vga_buffer::_print(format_args!($($arg)*)));
-}
-
-#[macro_export]
-macro_rules! println {
-    () => ($crate::print!("\n"));
-    ($($arg:tt)*) => ($crate::print!("{}\n", format_args!($($arg)*)));
-}
-
 /*
  * Since the macros need to be able to call _print from outside of the module,
  * the function needs to be public. However, since we consider this a private
  * implementation detail, we add the doc(hidden) attribute to hide it from the
  * generated documentation.
  */
-#[doc(hidden)]
+ #[doc(hidden)]
 pub fn _print(args: fmt::Arguments) {
     use core::fmt::Write;
     VGA_WRITER.lock().write_fmt(args).unwrap();

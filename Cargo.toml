@@ -10,8 +10,16 @@ edition = "2018"
 bootloader = "0.9.8"
 volatile = "0.2.6"
 spin = "0.5.2"
+x86_64 = "0.12.1"
+uart_16550 = "0.2.10"
 
 # Statics are initialized at compile time. When using lazy_static. the static lazilly initializes itself when it`s accessed the first time.
 [dependencies.lazy_static]
 version = "1.0"
 features = ["spin_no_std"]
+
+# The bootimage runner appends the test-args to the default QEMU command for all test executables. For a normal cargo run, the arguments are ignored.
+[package.metadata.bootimage]
+test-args = ["-device", "isa-debug-exit,iobase=0xf4,iosize=0x04","-serial", "stdio","-display", "none"]
+run-args = ["-serial", "stdio"]
+test-success-exit-code = 33         # (0x10 << 1) | 1
