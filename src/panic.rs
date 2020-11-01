@@ -1,5 +1,6 @@
 use core::panic::PanicInfo;
 use crate::tests::test;
+
 /// This function is called on panic.
 #[cfg(not(test))]
 #[panic_handler]

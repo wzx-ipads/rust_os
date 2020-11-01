@@ -1,2 +1,2 @@
 pub mod test;
-mod unit_test;
+mod vga_test;
