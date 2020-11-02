@@ -134,5 +134,13 @@ impl fmt::Write for Writer {
  #[doc(hidden)]
 pub fn _print(args: fmt::Arguments) {
     use core::fmt::Write;
-    VGA_WRITER.lock().write_fmt(args).unwrap();
+    use x86_64::instructions::interrupts;
+
+    /*
+     * Some interrupt handlers will also use VGA_WRITER, so disable
+     * interrupt to avoid deadlock.
+     */
+    interrupts::without_interrupts( || {
+        VGA_WRITER.lock().write_fmt(args).unwrap();
+    });
 }
