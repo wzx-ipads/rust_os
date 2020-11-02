@@ -15,8 +15,8 @@ mod interrupts;
 
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
-    println!("Tour of rust begins here!");
-    println!("Version: {}.{}", 1, 0);
+    serial_println!("Tour of rust begins here!");
+    serial_println!("Version: {}.{}", 1, 0);
 
 
     interrupts::interrupt_init();
@@ -24,9 +24,15 @@ pub extern "C" fn _start() -> ! {
     // invoke a breakpoint exception
     x86_64::instructions::interrupts::int3(); // new
 
-    println!("It did not crash!");
+    serial_println!("It did not crash!");
     #[cfg(test)]
     test_main();
 
-    loop {}
+    hlt_loop();
+}
+
+pub fn hlt_loop() -> ! {
+    loop {
+        x86_64::instructions::hlt();
+    }
 }

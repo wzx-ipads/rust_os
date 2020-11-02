@@ -5,8 +5,8 @@ use crate::tests::test;
 #[cfg(not(test))]
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
-    println!("{}", _info);
-    loop {}
+    serial_println!("{}", _info);
+    hlt_loop();
 }
 
 #[cfg(test)]
