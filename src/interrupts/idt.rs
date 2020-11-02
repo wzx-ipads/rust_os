@@ -1,7 +1,7 @@
 use lazy_static::lazy_static;
 use super::gdt;
 use super::timer;
-use crate::drivers::pic8259;
+use crate::drivers::{pic8259, keyboard};
 use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame};
 // InterruptDescriptorTable are defined as following
 
@@ -42,7 +42,8 @@ lazy_static! {
          * The InterruptDescriptorTable struct implements the IndexMut trait, 
          * so we can access individual entries through array indexing syntax.
          */
-        idt[pic8259::InterruptIndex::Timer.as_usize()].set_handler_fn(timer::timer_interrupt_handler) ;
+        idt[pic8259::InterruptIndex::Timer.as_usize()].set_handler_fn(timer::timer_interrupt_handler);
+        idt[pic8259::InterruptIndex::Keyboard.as_usize()].set_handler_fn(keyboard::keyboard_interrupt_handler);
         idt
     };
 }

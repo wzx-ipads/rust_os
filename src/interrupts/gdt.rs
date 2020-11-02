@@ -44,7 +44,7 @@ lazy_static! {
 }
 
 // pub struct GlobalDescriptorTable {
-//     table: [u64; 8],
+//     table: [u64; 8], 
 //     next_free: usize,
 // }
 

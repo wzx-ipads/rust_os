@@ -35,6 +35,7 @@ pub static PICS: spin::Mutex<ChainedPics> = spin::Mutex::new(unsafe {
 #[repr(u8)]
 pub enum InterruptIndex {
     Timer = PRIMARY_PIC_OFFSET,
+    Keyboard,
 }
 
 impl InterruptIndex {
