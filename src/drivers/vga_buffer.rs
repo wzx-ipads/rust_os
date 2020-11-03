@@ -70,6 +70,17 @@ pub struct Writer {
 }
 
 impl Writer {
+    pub fn backspace(&mut self) {
+        if self.column_position == 0 {
+            return;
+        }
+        self.column_position -= 1;
+        self.buffer.chars[BUFFER_HEIGHT-1][self.column_position].write(ScreenChar {
+            ascii_character: 0,
+            color_code: ColorCode::new(Color::Black, Color::Black),
+        });
+    }
+
     fn new_line(&mut self) {
         for row in 0..BUFFER_HEIGHT - 1 {
             for col in 0..BUFFER_WIDTH {

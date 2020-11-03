@@ -15,7 +15,7 @@ mod interrupts;
 
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
-    serial_println!("Tour of rust begins here!");
+    println!("Tour of rust begins here!");
     serial_println!("Version: {}.{}", 1, 0);
 
 
