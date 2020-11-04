@@ -1,6 +1,7 @@
 mod idt;
 mod gdt;
 mod timer;
+mod page_fault;
 
 use crate::drivers::pic8259;
 

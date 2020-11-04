@@ -1,6 +1,7 @@
 use lazy_static::lazy_static;
 use super::gdt;
 use super::timer;
+use super::page_fault;
 use crate::drivers::{pic8259, keyboard};
 use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame};
 // InterruptDescriptorTable are defined as following
@@ -37,7 +38,7 @@ lazy_static! {
         unsafe {
             idt.double_fault.set_handler_fn(double_fault_handler).set_stack_index(gdt::DOUBLE_FAULT_IST_INDEX);
         }
-
+        idt.page_fault.set_handler_fn(page_fault::page_fault_handler);
         /* 
          * The InterruptDescriptorTable struct implements the IndexMut trait, 
          * so we can access individual entries through array indexing syntax.
