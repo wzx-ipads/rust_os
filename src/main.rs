@@ -9,22 +9,33 @@
 #[macro_use]
 mod console;
 mod drivers;
+mod interrupts;
+mod mm;
 mod panic;
 mod tests;
-mod interrupts;
 
-#[no_mangle]
-pub extern "C" fn _start() -> ! {
+use bootloader::{entry_point, BootInfo};
+use mm::{allocator, page_table};
+use x86_64::VirtAddr;
+entry_point!(kernel_main);
+
+/// This is a normal Rust function. Bootloader will call this
+/// function as the entry point of the kernel.
+pub fn kernel_main(bootinfo: &'static BootInfo) -> ! {
     println!("Tour of rust begins here!");
     serial_println!("Version: {}.{}", 1, 0);
 
-
     interrupts::interrupt_init();
+
+    let phys_mem_offset = VirtAddr::new(bootinfo.physical_memory_offset);
+    let mut mapper = unsafe { page_table::init(phys_mem_offset) };
+    let mut frame_allocator =
+        unsafe { allocator::BootInfoFrameAllocator::init(&bootinfo.memory_map) };
 
     // invoke a breakpoint exception
     x86_64::instructions::interrupts::int3(); // new
-
     serial_println!("It did not crash!");
+
     #[cfg(test)]
     test_main();
 
