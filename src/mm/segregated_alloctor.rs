@@ -56,9 +56,10 @@ impl SegregatedStorageAllocator {
                 last_node = ListNode {
                     next: Some(&mut *node_ptr),
                 };
-                node_ptr = node_ptr.offset(1);
+                node_ptr = (node_ptr as usize + BLOCK_SIZES[index]) as *mut ListNode;
                 node_ptr.write(last_node);
             }
+            self.list_heads[index] = Some(&mut *node_ptr);
         }
     }
 
