@@ -14,6 +14,7 @@ x86_64 = "0.12.1"
 uart_16550 = "0.2.10"
 pic8259_simple = "0.2.0"
 pc-keyboard = "0.5.1"
+linked_list_allocator = "0.8.6"
 
 # Statics are initialized at compile time. When using lazy_static. the static lazilly initializes itself when it`s accessed the first time.
 [dependencies.lazy_static]
