@@ -7,6 +7,7 @@
 #![test_runner(crate::tests::test::test_runner)]
 #![feature(alloc_error_handler)]
 #![feature(const_mut_refs)]
+#![feature(const_in_array_repeat_expressions)]
 
 #[macro_use]
 mod console;
@@ -17,7 +18,6 @@ mod panic;
 mod tests;
 
 extern crate alloc;
-use alloc::{boxed::Box, vec, vec::Vec, rc::Rc};
 use bootloader::{entry_point, BootInfo};
 use mm::{allocator, heap_allocator, page_table};
 use x86_64::VirtAddr;
@@ -37,16 +37,6 @@ pub fn kernel_main(bootinfo: &'static BootInfo) -> ! {
         unsafe { allocator::BootInfoFrameAllocator::init(&bootinfo.memory_map) };
     heap_allocator::init_kernel_heap(&mut mapper, &mut frame_allocator)
         .expect("heap initialization failed");
-
-    let x = Box::new(0x41);
-    println!("{:p}", x);
-
-     // create a reference counted vector -> will be freed when count reaches 0
-     let reference_counted = Rc::new(vec![1, 2, 3]);
-     let cloned_reference = reference_counted.clone();
-     println!("current reference count is {}", Rc::strong_count(&cloned_reference));
-     core::mem::drop(reference_counted);
-     println!("reference count is {} now", Rc::strong_count(&cloned_reference));
 
     // invoke a breakpoint exception
     x86_64::instructions::interrupts::int3(); // new
