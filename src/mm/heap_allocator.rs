@@ -1,28 +1,31 @@
 extern crate alloc;
-use super::{bump_allocator::BumpAllocator, pool_allocator::LinkedListAllocator, Locked};
+use super::{Locked, segregated_alloctor::SegregatedStorageAllocator};
 use x86_64::structures::paging::{
     mapper::MapToError, FrameAllocator, Mapper, Page, PageTableFlags, Size4KiB,
 };
 use x86_64::VirtAddr;
 
 pub const HEAP_START: usize = 0x444444440000;
-pub const HEAP_SIZE: usize = 100 * 1024; // 100K
+pub const HEAP_SIZE: usize = 1 * 1024 * 1024; // 1M
 
+// Use SegregatedStorageAllocator as the default heap allocator
 #[global_allocator]
-static ALLOCATOR: Locked<LinkedListAllocator> = Locked::new(LinkedListAllocator::new());
+static ALLOCATOR: Locked<SegregatedStorageAllocator> = Locked::new(SegregatedStorageAllocator::new());
 
 pub fn init_kernel_heap(
     mapper: &mut impl Mapper<Size4KiB>,
     frame_allocator: &mut impl FrameAllocator<Size4KiB>,
 ) -> Result<(), MapToError<Size4KiB>> {
     let heap_pages = HEAP_SIZE / (4 * 1024);
-    let page = Page::<Size4KiB>::containing_address(VirtAddr::new(HEAP_START as u64));
+    let start_va = VirtAddr::new(HEAP_START as u64);
+    let mut curr_page;
 
     for i in 0..heap_pages {
-        let curr_page = page + (i * 4 * 1024) as u64;
+        let va = start_va + (i * 4 * 1024) as u64;
         let frame = frame_allocator
             .allocate_frame()
             .ok_or(MapToError::<Size4KiB>::FrameAllocationFailed)?;
+        curr_page = Page::containing_address(va);
         unsafe {
             mapper
                 .map_to(
