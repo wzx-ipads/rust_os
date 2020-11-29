@@ -21,6 +21,7 @@ extern crate alloc;
 use bootloader::{entry_point, BootInfo};
 use mm::{allocator, heap_allocator, page_table};
 use x86_64::VirtAddr;
+use mm::buddy_allocator;
 entry_point!(kernel_main);
 
 /// This is a normal Rust function. Bootloader will call this
@@ -30,6 +31,8 @@ pub fn kernel_main(bootinfo: &'static BootInfo) -> ! {
     serial_println!("Version: {}.{}", 1, 0);
 
     interrupts::interrupt_init();
+    // invoke a breakpoint exception
+    x86_64::instructions::interrupts::int3(); // new
 
     let phys_mem_offset = VirtAddr::new(bootinfo.physical_memory_offset);
     let mut mapper = unsafe { page_table::init(phys_mem_offset) };
@@ -38,8 +41,6 @@ pub fn kernel_main(bootinfo: &'static BootInfo) -> ! {
     heap_allocator::init_kernel_heap(&mut mapper, &mut frame_allocator)
         .expect("heap initialization failed");
 
-    // invoke a breakpoint exception
-    x86_64::instructions::interrupts::int3(); // new
     serial_println!("It did not crash!");
 
     #[cfg(test)]
