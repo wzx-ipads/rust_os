@@ -1,5 +1,5 @@
 extern crate alloc;
-use super::{Locked, segregated_alloctor::SegregatedStorageAllocator, buddy_allocator::BuddyAllocator};
+use super::{Locked, buddy_allocator::BuddyAllocator};
 use x86_64::structures::paging::{
     mapper::MapToError, FrameAllocator, Mapper, Page, PageTableFlags, Size4KiB,
 };
@@ -85,7 +85,7 @@ fn simple_allocation() {
 #[test_case]
 fn large_vec() {
     use alloc::{vec::Vec};
-    let n = 500;
+    let n = 1000;
     let mut vec = Vec::new();
     for i in 0..n {
         vec.push(i);

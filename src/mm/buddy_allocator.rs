@@ -1,11 +1,10 @@
 use super::{round_down, round_up, Locked};
 use alloc::alloc::{GlobalAlloc, Layout};
-use core::{mem, ptr, ptr::NonNull};
+use core::{mem, ptr};
 
 const MAX_BUDDY_ORDER: usize = 8;
 const PAGE_SIZE: usize = 1 << 12;
 const BUDDY_PAGE_ORDER: usize = 12;
-static NR_FREE: [u32; MAX_BUDDY_ORDER] = [0; MAX_BUDDY_ORDER];
 
 #[repr(C)]
 pub struct page {
@@ -114,8 +113,9 @@ impl BuddyAllocator {
 
         let order = page.order as usize;
 
-        let buddy_chunk_addr =
-            ((va - self.start_addr) ^ ((1 as usize) << (order + BUDDY_PAGE_ORDER))) + self.start_addr;
+        let buddy_chunk_addr = ((va - self.start_addr)
+            ^ ((1 as usize) << (order + BUDDY_PAGE_ORDER)))
+            + self.start_addr;
         assert!(
             buddy_chunk_addr >= self.heap_start
                 && buddy_chunk_addr < self.heap_start + self.heap_size
@@ -202,7 +202,6 @@ impl BuddyAllocator {
         size: usize,
         align: usize,
     ) -> Option<&'static mut page> {
-        
         let mut order = size_to_page_order(size);
         let needed_order = order as usize;
 
@@ -219,8 +218,6 @@ impl BuddyAllocator {
                         free_page.allocated = true;
                         return Some(free_page);
                     }
-                    
-                    
                 }
                 None => {
                     order += 1;
@@ -229,18 +226,33 @@ impl BuddyAllocator {
         }
         panic!("out of memory");
     }
+
+    pub unsafe fn checkout_free_memory(&mut self) {
+        serial_println!("--------------------");
+        for order in 0..MAX_BUDDY_ORDER {
+            let page = self.list_heads[order].take();
+            let mut cnt = 0;
+            if page.is_some() {
+                cnt += 1;
+                let first_ptr = page.unwrap().start_addr() as *mut page;
+                let mut page_ptr = first_ptr;
+                while let Some(ref mut p) = (*page_ptr).next {
+                    cnt += 1;
+                    page_ptr = p.start_addr() as *mut page;
+                }
+                self.list_heads[order] = Some(&mut *first_ptr);
+            }
+            serial_println!("order {} : {}", order, cnt);
+        }
+    }
 }
 
 unsafe impl GlobalAlloc for Locked<BuddyAllocator> {
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
         let mut allocator = self.lock();
         match allocator.get_free_pages(layout.size(), layout.align()) {
-            Some(page) => {
-                allocator.page_to_virt(page) as *mut u8
-            }
-            None => {
-                ptr::null_mut()
-            }
+            Some(page) => allocator.page_to_virt(page) as *mut u8,
+            None => ptr::null_mut(),
         }
     }
 
