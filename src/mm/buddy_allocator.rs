@@ -44,7 +44,7 @@ fn size_to_page_order(size: usize) -> u32 {
         return 0;
     }
     let mut order = 0;
-    let page_num = round_up(size, PAGE_SIZE);
+    let page_num = round_up(size, PAGE_SIZE) / PAGE_SIZE;
     let mut tmp = page_num;
 
     while tmp > 1 {
