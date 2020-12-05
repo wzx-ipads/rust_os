@@ -1,6 +1,7 @@
 use super::{round_down, round_up, Locked};
 use alloc::alloc::{GlobalAlloc, Layout};
 use core::{mem, ptr};
+use super::slab_allocator::slab_header;
 
 const MAX_BUDDY_ORDER: usize = 8;
 const PAGE_SIZE: usize = 1 << 12;
@@ -12,6 +13,7 @@ pub struct page {
     next: Option<&'static mut page>,
     order: u32,
     allocated: bool,
+    slab: Option<&'static mut slab_header>,
 }
 
 pub struct BuddyAllocator {
@@ -30,6 +32,7 @@ impl page {
             next: None,
             order: 0,
             allocated: false,
+            slab: None,
         }
     }
 
@@ -84,6 +87,7 @@ impl BuddyAllocator {
                 next: None,
                 order: 0,
                 allocated: true,
+                slab: None,
             };
             page_ptr.write(curr_page);
         }

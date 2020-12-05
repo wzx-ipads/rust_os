@@ -5,6 +5,7 @@ pub mod bump_allocator;
 pub mod pool_allocator;
 pub mod segregated_alloctor;
 pub mod buddy_allocator;
+pub mod slab_allocator;
 
 fn round_up(addr: usize, align: usize) -> usize {
     let remainder = addr % align;
