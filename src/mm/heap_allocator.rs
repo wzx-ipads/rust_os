@@ -1,5 +1,5 @@
 extern crate alloc;
-use super::{Locked, buddy_allocator::BuddyAllocator};
+use super::{Locked, buddy_allocator::BuddyAllocator, slab_allocator::SlabAllocator};
 use x86_64::structures::paging::{
     mapper::MapToError, FrameAllocator, Mapper, Page, PageTableFlags, Size4KiB,
 };
@@ -10,7 +10,7 @@ pub const HEAP_SIZE: usize = 1 * 1024 * 1024 + 0x2000; // 1M + 8k
 
 // Use SegregatedStorageAllocator as the default heap allocator
 #[global_allocator]
-static ALLOCATOR: Locked<BuddyAllocator> = Locked::new(BuddyAllocator::new());
+static ALLOCATOR: Locked<SlabAllocator> = Locked::new(SlabAllocator::new());
 
 pub fn init_kernel_heap(
     mapper: &mut impl Mapper<Size4KiB>,
@@ -85,7 +85,7 @@ fn simple_allocation() {
 #[test_case]
 fn large_vec() {
     use alloc::{vec::Vec};
-    let n = 1000;
+    let n = 500;
     let mut vec = Vec::new();
     for i in 0..n {
         vec.push(i);

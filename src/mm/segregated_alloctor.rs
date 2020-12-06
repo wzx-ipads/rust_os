@@ -18,6 +18,7 @@ pub struct SegregatedStorageAllocator {
     fallback_allocator: linked_list_allocator::Heap,
 }
 
+#[allow(dead_code)]
 impl SegregatedStorageAllocator {
     /// Creates an empty SegregatedStorageAllocator
     pub const fn new() -> Self {

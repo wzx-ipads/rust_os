@@ -1,10 +1,10 @@
 use super::{round_down, round_up, Locked};
 use alloc::alloc::{GlobalAlloc, Layout};
 use core::{mem, ptr};
-use super::slab_allocator::slab_header;
+use super::slab_allocator::SlabHeader;
 
 const MAX_BUDDY_ORDER: usize = 8;
-const PAGE_SIZE: usize = 1 << 12;
+pub(super) const PAGE_SIZE: usize = 1 << 12;
 const BUDDY_PAGE_ORDER: usize = 12;
 
 #[repr(C)]
@@ -13,7 +13,7 @@ pub struct page {
     next: Option<&'static mut page>,
     order: u32,
     allocated: bool,
-    slab: Option<&'static mut slab_header>,
+    pub(super) slab: Option<&'static mut SlabHeader>,
 }
 
 pub struct BuddyAllocator {
@@ -26,16 +26,6 @@ pub struct BuddyAllocator {
 }
 
 impl page {
-    pub fn new() -> Self {
-        page {
-            prev: None,
-            next: None,
-            order: 0,
-            allocated: false,
-            slab: None,
-        }
-    }
-
     fn start_addr(&self) -> usize {
         self as *const Self as usize
     }

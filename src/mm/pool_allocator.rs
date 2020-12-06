@@ -26,6 +26,7 @@ pub struct LinkedListAllocator {
     head: ListNode,
 }
 
+#[allow(dead_code)]
 impl LinkedListAllocator {
     pub const fn new() -> Self {
         LinkedListAllocator {
